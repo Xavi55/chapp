@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>chat</title>
+		 <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+	</head>
+	<style>
+			*{
+				margin: 0 0 0 0;
+				padding:0 0 0 0 ;
+			 }
+			 body
+			 {
+			 	font-family:Helvetica;
+			 }
+			.box
+			{
+				overflow-x: auto;
+    			overflow-y: auto;
+
+				border:3px solid black;
+				border-radius:10px;
+				width:80%;
+				height:300px;
+				margin: 40px 10% 0 10%;
+			}
+			h2
+			{
+				margin:10px 0 5px 5px ;
+			}
+			input
+			{
+				border:3px solid black;
+				border-radius:5px;
+				font-size:1.5em;
+				margin:20px 0px 0 30%;
+				padding-left:5px;
+				position:relative;
+			}
+			i:hover
+			{
+				color:red;
+
+			}
+			i:active
+			{
+				padding-left:9px;
+			}
+	</style>
+
+	<body>
+		<div class="box" id='box'></div>
+		<div class="input">
+			<input class=name type=text placeholder=name maxlength="15" autofocus></input>
+			<input class=text type="text" placeholder="type to chat" maxlength="35"></input>
+			<i class=" submit fa fa-send fa-1x"></i>
+		</div>
+	</body>
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+
+	<script>
+	//https://github.com/miguelgrinberg/Flask-SocketIO/issues/95
+	//https://github.com/miguelgrinberg/Flask-SocketIO/issues/176
+	//heroku started to work on ver.6
+
+
+		namespace=''
+		//var socket = io.connect('https://' + document.domain + ':' + location.port + namespace);
+		//var socket = io.connect('localhost:5000')
+		//hello
+		var protocol = window.location.protocol;
+		var socket = io.connect(protocol + '//' + document.domain + ':' + location.port + namespace);
+		console.log('connected to: '+protocol + '//' + document.domain + ':' + location.port + namespace)
+		socket.on('connect',function(){
+			socket.emit('cEvent',{
+				data:'User Connected'
+			});
+		});
+
+		$('.submit').on("click",function(e)//clicks
+		{
+			e.preventDefault();
+			send();
+		})
+
+		$('.text').bind("keyup",function(e)//'enter'
+		{
+			e.preventDefault();
+			if(e.keyCode==13)
+				send();
+		})
+
+		function send()
+		{
+			var element = document.getElementById("box");
+			var uname=$('input.name').val();
+			var mess=$("input.text").val();
+			if(uname!='' && mess!='' )
+			{
+				socket.emit('cEvent',{
+					user: uname,
+					msg: mess
+				})
+				$("input.text").val('');//clear
+			}
+		}
+
+		socket.on('reply',function(msg){
+			if(typeof msg.user !== 'undefined')
+			{
+				$('.box').append('<h2>'+msg.user+':'+ msg.msg+'</h2>');
+				document.getElementsByClassName('box')[0].scrollBy(0,50)//really hard!
+			}
+			console.log(msg);
+		})
+	</script>
+</html>
