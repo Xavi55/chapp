@@ -14,6 +14,11 @@
 			 {
 			 	font-family:Helvetica;
 			 }
+			 #mesg
+			 {
+				 text-align: center;
+				 margin-top: 5%;
+			 }
 			.box
 			{
 				overflow-x: auto;
@@ -48,13 +53,14 @@
 				padding-left:9px;
 			}
 	</style>
-
 	<body>
 		<div class="box" id='box'></div>
 		<div class="input">
 			<input class=name type=text placeholder=name maxlength="15" autofocus></input>
 			<input class=text type="text" placeholder="type to chat" maxlength="35"></input>
 			<i class=" submit fa fa-send fa-1x"></i>
+			<br>
+			<div id='mesg'><h4 id='connect'></h4></div>
 		</div>
 	</body>
 	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
@@ -66,7 +72,7 @@
 	//https://github.com/miguelgrinberg/Flask-SocketIO/issues/176
 	//heroku started to work on ver.6
 
-
+		let count=100;
 		namespace=''
 		//var socket = io.connect('https://' + document.domain + ':' + location.port + namespace);
 		//var socket = io.connect('localhost:5000')
@@ -75,8 +81,8 @@
 		var socket = io.connect(protocol + '//' + document.domain + ':' + location.port + namespace);
 		console.log('connected to: '+protocol + '//' + document.domain + ':' + location.port + namespace)
 		socket.on('connect',function(){
-			socket.emit('cEvent',{
-				data:'User Connected'
+			socket.emit('new',{
+				data:1
 			});
 		});
 
@@ -108,13 +114,27 @@
 			}
 		}
 
+		socket.on('new', function(data)
+		{
+			//console.log(data)
+			if(data)
+			{
+				$('#mesg').append(`<h4 id='connected'>${data}</h4>`);
+			}
+
+			setTimeout(function()
+			{
+				$('#connected').remove();
+			},2000);
+		})
+
 		socket.on('reply',function(msg){
 			if(typeof msg.user !== 'undefined')
 			{
 				$('.box').append('<h2>'+msg.user+':'+ msg.msg+'</h2>');
 				document.getElementsByClassName('box')[0].scrollBy(0,50)//really hard!
 			}
-			console.log(msg);
+			//console.log(msg);
 		})
 	</script>
 </html>

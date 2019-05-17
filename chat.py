@@ -10,6 +10,11 @@ socketio = SocketIO( app )
 def index():
 	return render_template('chat.html')
 
+@socketio.on('new')
+def handler(json):
+	data='A new user has entered the chat!'
+	socketio.emit('new',data)
+
 @socketio.on('cEvent')
 def handler(json):
 	#print (str(json))
@@ -19,4 +24,5 @@ def handler(json):
 if __name__=='__main__':
 	#socketio.run( app,debug=False)
     # Fetch the environment variable (so it works on Heroku):
-    socketio.run(app, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+	socketio.run(app,debug=True)
+    #socketio.run(app, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
